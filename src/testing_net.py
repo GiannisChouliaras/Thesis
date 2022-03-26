@@ -7,13 +7,13 @@ from net import Net
 def main() -> None:
     # load model
     model = Net(inFeats=3, outFeats=1, fHidden=10, sHidden=5)
-    model.load_state_dict(torch.load("../models/net.pth"))
+    model.load_state_dict(torch.load("../models/net.pt"))
     model.eval()
 
-    F1 = 0.3690
-    F2 = 0.5530
-    F3 = 0.7310
-    actual = 0.286
+    F1 = 0.7322
+    F2 = 0.3929
+    F3 = 0.5050
+    actual = 0.659
 
     data = np.array([F1, F2, F3])
     data = array_to_tensor(data)
