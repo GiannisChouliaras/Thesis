@@ -1,11 +1,12 @@
-import torch
-import numpy as np
-import torch.nn as nn
-from typing import List
-from sklearn.model_selection import KFold
 from statistics import mean
-from torch.utils.tensorboard import SummaryWriter
+from typing import List
+
+import numpy as np
+import torch
+import torch.nn as nn
+from sklearn.model_selection import KFold
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.tensorboard import SummaryWriter
 
 
 class Net(nn.Module):
@@ -75,7 +76,7 @@ def main(save_model=False) -> None:
         step = 0
         for epoch in range(ITERATIONS):
             prediction = model(X_train)
-            training_loss = loss(y_train, prediction)
+            training_loss = loss(prediction, y_train)
             optimizer.zero_grad()
             training_loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1)
@@ -85,7 +86,7 @@ def main(save_model=False) -> None:
             with torch.no_grad():
                 model.eval()
                 valid_prediction = model(X_test)
-                validation_loss = loss(y_test, valid_prediction)
+                validation_loss = loss(valid_prediction, y_test)
                 model.train()
 
             scheduler.step(metrics=validation_loss)
@@ -117,7 +118,7 @@ def main(save_model=False) -> None:
     # training before saving
     for epoch in range(ITERATIONS):
         prediction = model(data)
-        training_loss = loss(target, prediction)
+        training_loss = loss(prediction, target)
         optimizer.zero_grad()
         training_loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1)
@@ -128,4 +129,4 @@ def main(save_model=False) -> None:
 
 
 if __name__ == "__main__":
-    main(save_model=True)
+    main(save_model=False)
