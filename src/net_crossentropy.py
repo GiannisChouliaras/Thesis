@@ -12,6 +12,7 @@ class SoftNet(nn.Module):
         self.model = nn.Sequential(
             nn.Linear(in_features=inputs, out_features=hidden_size),
             nn.ReLU(),
+            nn.Dropout(p=0.5),
             nn.Linear(in_features=hidden_size, out_features=hidden_size),
             nn.ReLU(),
             nn.Linear(in_features=hidden_size, out_features=outputs),
@@ -90,4 +91,4 @@ def main(save_model=False) -> None:
 
 
 if __name__ == "__main__":
-    main(save_model=False)
+    main(save_model=True)

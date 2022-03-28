@@ -1,15 +1,17 @@
-import torch
-import numpy as np
-import cv2 as cv
-import torchvision
 import argparse
-from typing import List, Callable
 from os.path import exists
+from typing import List, Callable
+
+import cv2 as cv
+import numpy as np
+import torch
+import torchvision
 from PIL import Image as Img
 from sklearn.decomposition import PCA
-from func import convert_number, array_to_tensor
-from net import Net
 
+from func import array_to_tensor, convert_number
+from net import Net
+from net_crossentropy import SoftNet
 
 parser = argparse.ArgumentParser(description='Evaluating AK treatment')
 parser.add_argument('--case', metavar='case', type=int, help='Enter the number of the case', required=True)
@@ -182,12 +184,19 @@ def main(case: str) -> None:
 
     # load model
     net = Net(inFeats=3, outFeats=1, fHidden=10, sHidden=5)
+    # net = SoftNet(inputs=3, outputs=8, hidden_size=10)
     net.load_state_dict(torch.load("../models/net.pt"))
     net.eval()
 
     # predict
     before_prediction = round(net(before_results).item(), 3)
     after_prediction = round(net(after_results).item(), 3)
+
+    # before_prediction = net(before_results)
+    # after_prediction = net(after_results)
+
+    # print("Before:", torch.argmax(before_prediction).item() + 1, sep=" ", end=" ------- ")
+    # print("After:", torch.argmax(after_prediction).item() + 1, sep=" ")
 
     print(
         f"Prediction of before: {convert_number(before_prediction, range1=(0, 1), range2=(1, 8))} ({before_prediction})"

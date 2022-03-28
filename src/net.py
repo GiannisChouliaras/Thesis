@@ -16,8 +16,8 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.model = nn.Sequential(
             nn.Linear(in_features=inFeats, out_features=fHidden),
-            nn.Dropout(p=0.25),
             nn.Tanh(),
+            nn.Dropout(p=0.25),
             nn.Linear(in_features=fHidden, out_features=sHidden),
             nn.Tanh(),
             nn.Linear(in_features=sHidden, out_features=outFeats),
@@ -32,7 +32,7 @@ def main(save_model=False) -> None:
 
     # HyperParameters
     LR = 0.01
-    ITERATIONS = 80
+    ITERATIONS = 200
     INPUT = 3
     OUTPUT = 1
     H1 = 10
@@ -125,6 +125,8 @@ def main(save_model=False) -> None:
         optimizer.step()
 
     print(f"The final training loss is {training_loss.item():.3f}")
+    print(model)
+    print(f"Got {sum([param.nelement() for param in model.parameters()])} parameters")
     torch.save(model.state_dict(), "../models/net.pt")
 
 
