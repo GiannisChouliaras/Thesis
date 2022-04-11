@@ -31,7 +31,7 @@ class Net(nn.Module):
 def main(save_model=False) -> None:
 
     # HyperParameters
-    LR = 0.01
+    LR = 1e-2
     ITERATIONS = 200
     INPUT = 3
     OUTPUT = 1
