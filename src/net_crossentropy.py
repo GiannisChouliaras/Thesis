@@ -12,7 +12,7 @@ class SoftNet(nn.Module):
         self.model = nn.Sequential(
             nn.Linear(in_features=inputs, out_features=hidden_size),
             nn.ReLU(),
-            nn.Dropout(p=0.5),
+            nn.Dropout(p=0.25),
             nn.Linear(in_features=hidden_size, out_features=hidden_size),
             nn.ReLU(),
             nn.Linear(in_features=hidden_size, out_features=outputs),

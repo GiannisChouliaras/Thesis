@@ -1,6 +1,7 @@
 import argparse
 from os.path import exists
 from typing import List, Callable
+from SVM import init_svm
 
 import cv2 as cv
 import numpy as np
@@ -13,8 +14,14 @@ from func import array_to_tensor, convert_number
 from net import Net
 from net_crossentropy import SoftNet
 
-parser = argparse.ArgumentParser(description='Evaluating AK treatment')
-parser.add_argument('--case', metavar='case', type=int, help='Enter the number of the case', required=True)
+parser = argparse.ArgumentParser(description="Evaluating AK treatment")
+parser.add_argument(
+    "--case",
+    metavar="case",
+    type=int,
+    help="Enter the number of the case",
+    required=True,
+)
 args = parser.parse_args()
 
 
@@ -46,7 +53,7 @@ def get_images(path: str) -> List:
 
     def crop_image(roi: List, img: np.ndarray) -> np.ndarray:
         return img[
-            int(roi[1]): int(roi[1] + roi[3]), int(roi[0]): int(roi[0] + roi[2])
+            int(roi[1]) : int(roi[1] + roi[3]), int(roi[0]) : int(roi[0] + roi[2])
         ]
 
     image = cv.imread(path)
@@ -62,7 +69,9 @@ def get_images(path: str) -> List:
     )
 
     if len(extract) == 0 or len(extract) < 3:
-        raise Exception("The extracted images should be 3. The wounded area first and then the normal skin.")
+        raise Exception(
+            "The extracted images should be 3. The wounded area first and then the normal skin."
+        )
 
     if len(extract) > 3:
         extract = extract[:3]
@@ -184,26 +193,26 @@ def main(case: str) -> None:
 
     # load model
     net = Net(inFeats=3, outFeats=1, fHidden=10, sHidden=5)
-    # net = SoftNet(inputs=3, outputs=8, hidden_size=10)
     net.load_state_dict(torch.load("../models/net.pt"))
     net.eval()
+    svm = init_svm('rbf')
 
     # predict
     before_prediction = round(net(before_results).item(), 3)
     after_prediction = round(net(after_results).item(), 3)
 
-    # before_prediction = net(before_results)
-    # after_prediction = net(after_results)
-
-    # print("Before:", torch.argmax(before_prediction).item() + 1, sep=" ", end=" ------- ")
-    # print("After:", torch.argmax(after_prediction).item() + 1, sep=" ")
+    svm_before = svm.predict([list(before_results)])[0]
+    svm_after = svm.predict([list(after_results)])[0]
 
     print(
-        f"Prediction of before: {convert_number(before_prediction, range1=(0, 1), range2=(1, 8))} ({before_prediction})"
+        "Sigmoid: Before: ",
+        convert_number(before_prediction, range1=(0, 1), range2=(1, 8)),
+        end=" ------- ",
     )
-    print(
-        f"Prediction of after: {convert_number(after_prediction, range1=(0, 1), range2=(1, 8))} ({after_prediction})"
-    )
+
+    print("After: ", convert_number(after_prediction, range1=(0, 1), range2=(1, 8)))
+
+    print(f"svm: before: {round(svm_before, 1)} ----- after: {round(svm_after, 1)}")
 
 
 if __name__ == "__main__":
