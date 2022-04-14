@@ -32,15 +32,16 @@ def main(save_model=False) -> None:
 
     # HyperParameters
     LR = 1e-2
-    ITERATIONS = 200
+    ITERATIONS = 300
     INPUT = 3
     OUTPUT = 1
-    H1 = 10
-    H2 = 5
+    H1 = 100
+    H2 = 50
 
     # import the numpy arrays
     data = np.load("../data/arrays/data.npy")
-    target = np.load("../data/arrays/target.npy")
+    # target = np.load("../data/arrays/targets.npy")
+    target = np.load("../data/arrays/targets_norm.npy")
 
     # convert arrays to tensors
     data = torch.tensor(data, dtype=torch.float32)
@@ -124,6 +125,9 @@ def main(save_model=False) -> None:
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1)
         optimizer.step()
 
+        # if (epoch + 1) % 10 == 0:
+        #     print(f"epoch: {epoch+1} and loss = {training_loss.item():.3f}")
+
     print(f"The final training loss is {training_loss.item():.3f}")
     print(model)
     print(f"Got {sum([param.nelement() for param in model.parameters()])} parameters")
@@ -131,4 +135,4 @@ def main(save_model=False) -> None:
 
 
 if __name__ == "__main__":
-    main(save_model=False)
+    main(save_model=True)
