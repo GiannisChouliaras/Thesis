@@ -2,7 +2,8 @@ import numpy as np
 import cv2 as cv
 
 from os.path import exists
-from typing import List
+from typing import List, Tuple, Optional, Any
+from config import Cases
 
 
 class Image:
@@ -13,22 +14,23 @@ class Image:
         self.fully_connected = None
 
 
+def resize_window(_image, res_width=None, res_height=None, inter=cv.INTER_AREA) -> np.ndarray:
+    (h, w) = _image.shape[:2]
+    if res_width is None and res_height is None:
+        return _image
+    if res_width is None:
+        rad = h / float(h)
+        dim = (int(w * rad), res_height)
+    else:
+        rad = res_width / float(w)
+        dim = (res_width, int(h * rad))
+    return cv.resize(_image, dim, interpolation=inter)
+
+
 # Create the function that will open and cut the images, they return a list of Image objects
-def get_images(path: str) -> List:
+def get_images(path: str) -> tuple[list[Image], np.ndarray]:
     if not exists(path):
         raise FileNotFoundError("Path is not valid. Check if case exists.")
-
-    def resize_window(_image, res_width=None, res_height=None, inter=cv.INTER_AREA):
-        (h, w) = _image.shape[:2]
-        if res_width is None and res_height is None:
-            return _image
-        if res_width is None:
-            rad = h / float(h)
-            dim = (int(w * rad), res_height)
-        else:
-            rad = res_width / float(w)
-            dim = (res_width, int(h * rad))
-        return cv.resize(_image, dim, interpolation=inter)
 
     def crop_image(roi: List, img: np.ndarray) -> np.ndarray:
         return img[
@@ -60,4 +62,19 @@ def get_images(path: str) -> List:
 
     samples: List[Image] = [Image(crop_image(roi=row, img=image)) for row in extract]
     cv.destroyAllWindows()
-    return samples
+    return samples, extract
+
+
+def draw_squares(case: str, extracted: np.ndarray, score: int) -> None:
+    image = cv.imread(case)
+    image = resize_window(image, res_width=1360)
+    wound = extracted[0]
+    image = cv.rectangle(image, (wound[0], wound[1]), (wound[0] + wound[2], wound[1] + wound[3]), (166, 32, 68), 2)
+    for img in extracted[1:]:
+        image = cv.rectangle(image, (img[0], img[1]), (img[0] + img[2], img[1] + img[3]), (32, 166, 82), 2)
+    cv.putText(
+        image, f"The score is {score}", (20, 100), cv.FONT_HERSHEY_SIMPLEX, 1, (209, 80, 0, 255), 2
+    )
+    cv.imshow(winname="Thesis", mat=image)
+    cv.waitKey(0)
+    cv.destroyAllWindows()

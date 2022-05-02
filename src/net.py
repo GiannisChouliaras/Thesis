@@ -135,4 +135,4 @@ def main(save_model=False) -> None:
 
 
 if __name__ == "__main__":
-    main(save_model=True)
+    main(save_model=False)

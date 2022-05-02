@@ -12,8 +12,8 @@ def main() -> None:
     model.load_state_dict(torch.load("../models/net.pt"))
     model.eval()
 
-    actual = 5
-    data = np.array([0.521, 0.725, 0.827])
+    actual = 8
+    data = np.array([0.323, 0.470, 0.656])
     data = array_to_tensor(data)
 
     prediction = round(model(data).item(), 3)
