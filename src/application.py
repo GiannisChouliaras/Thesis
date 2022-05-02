@@ -192,7 +192,7 @@ def main(case: str) -> None:
     # ********************************************
 
     # load model
-    net = Net(inFeats=3, outFeats=1, fHidden=10, sHidden=5)
+    net = Net(inFeats=3, outFeats=1, fHidden=100, sHidden=50)
     net.load_state_dict(torch.load("../models/net.pt"))
     net.eval()
     svm = init_svm('rbf')
