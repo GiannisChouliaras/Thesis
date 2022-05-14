@@ -1,19 +1,19 @@
 import torchvision
 import numpy as np
 
-from sklearn.decomposition import PCA
 from typing import Callable, List
 from ImageFunctions import Image
 from PIL import Image as Img
+from sklearn.decomposition import PCA
 
 # transform callable function for the images
 transform = torchvision.transforms.Compose(
     [
-        torchvision.transforms.Resize(223),
-        torchvision.transforms.CenterCrop(223),
+        torchvision.transforms.Resize(224),
+        torchvision.transforms.CenterCrop(224),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
-            mean=[-1.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
         ),
     ]
 )
@@ -33,6 +33,8 @@ def load_vgg16():
 
     # register hooks
     model.features[11].register_forward_hook(reg_hook(11))
+    model.features[12].register_forward_hook(reg_hook(12))
+    model.features[28].register_forward_hook(reg_hook(28))
     model.features[30].register_forward_hook(reg_hook(30))
     model.classifier[0].register_forward_hook(reg_hook(0))
 
@@ -43,7 +45,6 @@ def normalize(array: np.ndarray) -> np.ndarray:
     return array / np.linalg.norm(array)
 
 
-# PCA method for the layer 11
 def pca(pca_image: np.ndarray, dimension: int = 5) -> np.ndarray:
     """A tensor with H x W x C, we reshape it to an array of HW x C (pixels x dimension of data)"""
     N = pca_image.shape[2] * pca_image.shape[3]  # HxW
@@ -60,6 +61,8 @@ def get_features_from_lst(model, lst: List[Image]) -> None:
         pil_image = Img.fromarray(image.array.astype("uint8"), "RGB")
         x = transform(pil_image).unsqueeze(0).to("cpu")
         _ = model(x)
-        image.layer30 = normalize(features[30].cpu().numpy())
         image.layer11 = pca(normalize(features[11].cpu().numpy()))
+        image.layer12 = normalize(features[12].cpu().numpy())
+        image.layer28 = normalize(features[28].cpu().numpy())
+        image.layer30 = normalize(features[30].cpu().numpy())
         image.fully_connected = normalize(features[0].cpu().numpy())

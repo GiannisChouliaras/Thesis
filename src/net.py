@@ -16,12 +16,11 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.model = nn.Sequential(
             nn.Linear(in_features=inFeats, out_features=fHidden),
-            nn.Tanh(),
+            nn.ReLU(),
             nn.Dropout(p=0.25),
             nn.Linear(in_features=fHidden, out_features=sHidden),
-            nn.Tanh(),
+            nn.ReLU(),
             nn.Linear(in_features=sHidden, out_features=outFeats),
-            nn.Sigmoid(),
         )
 
     def forward(self, x):
@@ -29,19 +28,17 @@ class Net(nn.Module):
 
 
 def main(save_model=False) -> None:
-
     # HyperParameters
     LR = 1e-2
-    ITERATIONS = 300
+    ITERATIONS = 250
     INPUT = 3
     OUTPUT = 1
     H1 = 100
-    H2 = 50
+    H2 = 100
 
     # import the numpy arrays
     data = np.load("../data/arrays/data.npy")
-    # target = np.load("../data/arrays/targets.npy")
-    target = np.load("../data/arrays/targets_norm.npy")
+    target = np.load("../data/arrays/targets.npy")
 
     # convert arrays to tensors
     data = torch.tensor(data, dtype=torch.float32)
@@ -135,4 +132,4 @@ def main(save_model=False) -> None:
 
 
 if __name__ == "__main__":
-    main(save_model=False)
+    main(save_model=True)
