@@ -2,8 +2,8 @@ import torch
 import numpy as np
 import cv2 as cv
 
-from typing import Tuple, Callable, List
-from ImageFunctions import Image
+from typing import Tuple, List
+from classes import Image
 from skimage.segmentation import slic
 from skimage.color import label2rgb
 from skimage.transform import resize
@@ -48,6 +48,14 @@ def cosine_similarity(A: np.ndarray, B: np.ndarray) -> float:
     return np.dot(A, B) / (np.linalg.norm(A) * np.linalg.norm(B))
 
 
+def log_euclidean_distance(P: np.ndarray, Q: np.ndarray) -> float:
+    """@return the log euclidean distance"""
+    pl = np.log2(P.astype(float) + 1)
+    ql = np.log2(Q.astype(float) + 1)
+    dist = np.sqrt(np.sum(np.square(pl - ql)))
+    return dist
+
+
 def segmentation(img: np.ndarray, n_segments=4, compactness=3) -> np.ndarray:
     """@return the segmentation of the @param img with slic."""
     image_slic = slic(image=img, n_segments=n_segments, compactness=compactness)
@@ -79,17 +87,46 @@ def calculate_similarities(
     return average([c1, c2])
 
 
-def results(lst: List[Image]) -> List:
+def calculate_log_euclidean_distances(lst: List) -> float:
+    """@return the average value of the log euclidean distance"""
+    led1 = log_euclidean_distance(lst[0], lst[1])
+    led2 = log_euclidean_distance(lst[0], lst[2])
+    return average([led1, led2])
+
+
+def cosine_similarity_scores_of_layers(list_of_images_instances: List[Image]) -> List[float]:
     """Execute the function calculate_similarities in a List that contains Image objects."""
-    layer30 = calculate_similarities(
-        lst[0].layer30.flatten(), lst[1].layer30.flatten(), lst[2].layer30.flatten()
+    early = calculate_similarities(
+        list_of_images_instances[0].early.flatten(),
+        list_of_images_instances[1].early.flatten(),
+        list_of_images_instances[2].early.flatten(),
     )
-    layer11 = calculate_similarities(
-        lst[0].layer11.flatten(), lst[1].layer11.flatten(), lst[2].layer11.flatten()
+    fully_connected = calculate_similarities(
+        list_of_images_instances[0].fully_connected.flatten(),
+        list_of_images_instances[1].fully_connected.flatten(),
+        list_of_images_instances[2].fully_connected.flatten(),
     )
-    ful_con = calculate_similarities(
-        lst[0].fully_connected.flatten(),
-        lst[1].fully_connected.flatten(),
-        lst[2].fully_connected.flatten(),
-    )
-    return [layer30, layer11, ful_con]
+    return [early, fully_connected]
+
+
+def global_histogram(img, bins=32, norm="value", factor=512) -> np.ndarray:
+    """@return the histogram of the @param img using number of @param bins"""
+    if len(img.shape) == 2:  # for single channel
+        hist, _ = np.histogram(img, bins=bins)
+
+    if len(img.shape) == 3:  # for RGB - LAB - YIQ
+        hL, _ = np.histogram(img[:, :, 0], bins=bins)
+        hA, _ = np.histogram(img[:, :, 1], bins=bins)
+        hB, _ = np.histogram(img[:, :, 2], bins=bins)
+        # hist = np.concatenate([hL, hA, hB])
+        hist = hL  # only the L from LAB space
+
+    hist = hist.astype(float)
+
+    if norm == "sum":
+        hist /= hist.sum() + 1e-4
+        return hist
+
+    hist /= hist.sum() + 1e-4
+    hist *= factor
+    return hist.astype(int)
