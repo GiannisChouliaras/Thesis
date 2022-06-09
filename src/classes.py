@@ -2,6 +2,12 @@ import numpy as np
 from enum import IntEnum, Enum
 
 
+class Category(Enum):
+    """Enum class for the two different types of images (before and after)"""
+    BEFORE = "BEFORE"
+    AFTER = "AFTER"
+
+
 class Cases:
     def __init__(self, case: int) -> None:
         """Class that contains the paths of the given case number."""
@@ -14,6 +20,9 @@ class Cases:
     @property
     def after_path(self) -> str:
         return f"../data/raw/CASE{self.case}/paired/after.jpg"
+
+    def cropped_path(self, category: Category) -> str:
+        return f"../data/cropped_images/CASE{self.case}/{category.value}/"
 
 
 class Image:
@@ -35,9 +44,9 @@ class Layer(IntEnum):
 class HyperParameters(Enum):
     """Enum class for the hyperparameters of the network."""
     LR = 1e-2
-    ITERATIONS = 500
+    ITERATIONS = 200
     INPUT = 3
     OUTPUT = 1
-    FIRST_HIDDEN = 100
-    SECOND_HIDDEN = 50
-    DROPOUT = 0.20
+    FIRST_HIDDEN = 70
+    SECOND_HIDDEN = 30
+    DROPOUT = 0.25

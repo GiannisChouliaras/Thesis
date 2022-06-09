@@ -18,11 +18,11 @@ class NeuralNetwork(nn.Module):
         super(NeuralNetwork, self).__init__()
         self.model = nn.Sequential(
             nn.Linear(in_features=inFeats, out_features=fHidden),
-            nn.ReLU(),
+            nn.Tanh(),
             nn.Dropout(p=HP.DROPOUT.value),
             nn.Linear(in_features=fHidden, out_features=sHidden),
             nn.Tanh(),
-            nn.Linear(in_features=sHidden, out_features=outFeats),
+            nn.Linear(in_features=sHidden, out_features=outFeats)
         )
 
     def forward(self, x):
@@ -69,7 +69,7 @@ def main(save_model=False) -> None:
         loss = nn.MSELoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=HP.LR.value)
         scheduler = ReduceLROnPlateau(
-            optimizer=optimizer, mode="min", factor=0.1, patience=20
+            optimizer=optimizer, mode="min", factor=0.1, patience=15
         )
 
         # starting the train procedure
@@ -122,7 +122,7 @@ def main(save_model=False) -> None:
     loss = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=HP.LR.value)
     scheduler = ReduceLROnPlateau(
-        optimizer=optimizer, mode="min", factor=0.01, patience=20
+        optimizer=optimizer, mode="min", factor=0.01, patience=15
     )
 
     # reshape target

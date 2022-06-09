@@ -14,7 +14,6 @@ transform = torchvision.transforms.Compose(
         torchvision.transforms.CenterCrop(224),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize(
-            # mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
             mean=[0.4247, 0.4662, 0.6567],
             std=[0.1296, 0.1301, 0.1386],
         ),

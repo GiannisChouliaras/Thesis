@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+import pingouin as pg
 import torch
 
 from neural_network import NeuralNetwork
@@ -29,10 +31,12 @@ def main() -> None:
     predicted = []
     for index, item in enumerate(data):
         prediction = model(item).item()
-        predicted.append(int(round(prediction, 0)))
+        predicted.append(round(prediction, 1))
 
-    print("prediction: ", predicted, sep="\t")
-    print("target: ", target, sep="\t\t")
+    df = pd.DataFrame({'Q1': target,
+                       'Q2': predicted})
+
+    print(f"Cronbach's alpha is: {pg.cronbach_alpha(data=df)}")
 
     print(f"var score: \t{var(target, predicted):.3f}")
     print(f"R2 score: \t{r2(target, predicted):.3f}")

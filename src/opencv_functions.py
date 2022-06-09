@@ -5,6 +5,7 @@ from os.path import exists
 from skimage.io import imread
 from typing import List
 from classes import Image
+from PIL import Image as IMG
 
 
 def resize_window(
@@ -23,8 +24,10 @@ def resize_window(
     return cv.resize(_image, dim, interpolation=inter)
 
 
-def open_and_crop_images(path: str) -> tuple[list[Image], np.ndarray, list[np.ndarray]]:
-    """Checks if the path exists and @return the cropped image"""
+def open_and_crop_images(
+    path: str, desktop_path: str
+) -> tuple[list[Image], np.ndarray, list[np.ndarray]]:
+    """Checks if the path exists and then store - @return the cropped images"""
 
     if not exists(path):
         raise FileNotFoundError("Path is not valid. Check if case exists.")
@@ -33,6 +36,11 @@ def open_and_crop_images(path: str) -> tuple[list[Image], np.ndarray, list[np.nd
         return img[
             int(roi[1]) : int(roi[1] + roi[3]), int(roi[0]) : int(roi[0] + roi[2])
         ]
+
+    # def save_arrays_as_image(arrays: List[np.ndarray]) -> None:
+    #     """Save the cropped image to the disc."""
+    #     for index, array in enumerate(arrays):
+    #         IMG.fromarray(array).save(f"{desktop_path}{index}.jpg")
 
     image = cv.imread(path)
     color_image = imread(path)
@@ -62,6 +70,8 @@ def open_and_crop_images(path: str) -> tuple[list[Image], np.ndarray, list[np.nd
     samples: List[Image] = [Image(crop_image(roi=row, img=image)) for row in extract]
     cropped_images = [crop_image(roi=row, img=color_image) for row in extract]
     cv.destroyAllWindows()
+
+    # save_arrays_as_image(cropped_images)
     return samples, extract, cropped_images
 
 

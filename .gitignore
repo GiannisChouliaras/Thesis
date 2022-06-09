@@ -14,6 +14,7 @@ __pycache__/
 csv/
 data/raw/
 data/preprocess/
+data/cropped_images
 Notes/
 runs/
 vgg16.png
